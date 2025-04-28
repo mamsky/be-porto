@@ -37,22 +37,26 @@ model Profile {
 
   userId      String
   user        User  @relation(fields: [userId], references: [id])
-
-
 }
 
 model Project {
-  id          String @id @default(uuid())
-  title       String
-  description String
-  tech        String
-  demo        String?
-  github      String?
-  images      String
+  id            String @id @default(uuid())
+  title         String
+  description   String
+  tech          ArrTech @relation(fields: [techId], references: [id])
+  techId        String
+  demo          String?
+  github        String?
+  images        String
 
-  userId      String
-  user        User @relation(fields: [userId], references: [id])
+  userId        String
+  user          User @relation(fields: [userId], references: [id])
+}
 
+model ArrTech {
+  id             String @id @default(uuid())
+  tech           String
+  techstack      Project[]
 }
 
 model Tech {
@@ -62,20 +66,25 @@ model Tech {
 
   userId      String
   user        User @relation(fields: [userId], references: [id])
-
 }
 
 model Work {
+  id            String @id @default(uuid())
+  title         String
+  location      String
+  description   ArrDesc @relation(fields: [descriptionId], references: [id])
+  descriptionId String
+  date          String
+  images        String
+
+  userId        String
+  user          User @relation(fields: [userId], references: [id])
+}
+
+model ArrDesc {
   id          String @id @default(uuid())
-  title       String
-  location    String
-  description String
-  date        String
-  images      String
-
-  userId      String
-  user        User @relation(fields: [userId], references: [id])
-
+  desc        String?
+  description Work[]
 }
 
 enum Option {
