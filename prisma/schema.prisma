@@ -43,8 +43,7 @@ model Project {
   id            String @id @default(uuid())
   title         String
   description   String
-  tech          ArrTech @relation(fields: [techId], references: [id])
-  techId        String
+  techstack      ArrTech[]
   demo          String?
   github        String?
   images        String
@@ -55,8 +54,10 @@ model Project {
 
 model ArrTech {
   id             String @id @default(uuid())
-  tech           String
-  techstack      Project[]
+  techstack      String
+
+  tech           Project @relation(fields: [techId], references: [id])
+  techId         String
 }
 
 model Tech {
@@ -72,8 +73,9 @@ model Work {
   id            String @id @default(uuid())
   title         String
   location      String
-  description   ArrDesc @relation(fields: [descriptionId], references: [id])
-  descriptionId String
+  
+  description ArrDesc[]
+
   date          String
   images        String
 
@@ -82,9 +84,12 @@ model Work {
 }
 
 model ArrDesc {
-  id          String @id @default(uuid())
-  desc        String?
-  description Work[]
+  id            String @id @default(uuid())
+  desc          String
+
+  description   Work @relation(fields: [descriptionId], references: [id])
+  descriptionId String
+  
 }
 
 enum Option {

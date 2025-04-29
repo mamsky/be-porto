@@ -4,6 +4,7 @@ import {
   createDataUser,
   getDataAllUser,
 } from "../controller/user.controller";
+import { authCheck } from "../middleware/auth.middleware";
 const router = express.Router();
 
 router.get("/", getDataAllUser);
