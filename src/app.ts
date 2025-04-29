@@ -9,10 +9,6 @@ const app = express();
 app.use(cors(corsConfig));
 app.use(express.json());
 
-app.use("/", (req: Request, res: Response) => {
-  res.send("Hallo world");
-});
-
 app.use("/", groupRoutes);
 app.use(ErrorHandler);
 
