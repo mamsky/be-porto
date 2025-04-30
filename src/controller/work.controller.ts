@@ -17,7 +17,7 @@ export const getDataWork = async (
     const data = await getAllDataWork();
 
     if (data.length <= 0) {
-      res.status(404).json({ message: "don't have data yet", data });
+      res.status(404).json({ message: "don't have data yet" });
       return;
     }
 

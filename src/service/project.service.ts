@@ -38,6 +38,9 @@ export const createDataProjectService = async (
         },
       },
     },
+    include: {
+      techstack: true,
+    },
   });
 };
 

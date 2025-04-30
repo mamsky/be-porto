@@ -1,7 +1,12 @@
 import express from "express";
-import { getAllProjectController } from "../controller/project.controller";
+import {
+  createDataProjectController,
+  getAllProjectController,
+} from "../controller/project.controller";
+import { authCheck } from "../middleware/auth.middleware";
 const router = express.Router();
 
-router.get("/", getAllProjectController);
+router.get("/", authCheck, getAllProjectController);
+router.post("/", authCheck, createDataProjectController);
 
 export default router;
