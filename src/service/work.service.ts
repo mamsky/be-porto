@@ -39,3 +39,55 @@ export const createDataWorkService = async (
     },
   });
 };
+
+export const updateDataWorkService = async (
+  { date, description, images, location, title }: WorkDTO,
+  id: string
+) => {
+  return prisma.$transaction(async (tx) => {
+    await tx.arrDesc.deleteMany({
+      where: {
+        descriptionId: id,
+      },
+    });
+
+    const updateWorkData = await tx.work.update({
+      where: {
+        id,
+      },
+      data: {
+        title,
+        description: {
+          createMany: {
+            data: description.map((desc) => ({ desc })),
+          },
+        },
+        location,
+        images,
+        date,
+      },
+      include: {
+        description: true,
+      },
+    });
+
+    return updateWorkData;
+  });
+};
+
+export const deleteDataWorkService = async (id: string) => {
+  return prisma.$transaction(async (tx) => {
+    await tx.arrDesc.deleteMany({
+      where: {
+        descriptionId: id,
+      },
+    });
+
+    const deleteDataWork = await tx.work.delete({
+      where: {
+        id,
+      },
+    });
+    return deleteDataWork;
+  });
+};

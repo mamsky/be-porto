@@ -73,9 +73,8 @@ model Work {
   id            String @id @default(uuid())
   title         String
   location      String
-  
   description ArrDesc[]
-
+  
   date          String
   images        String
 
