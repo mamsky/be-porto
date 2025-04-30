@@ -3,6 +3,7 @@ import {
   createDataWorkService,
   deleteDataWorkService,
   getAllDataWork,
+  getDataWorkByIdService,
   updateDataWorkService,
 } from "../service/work.service";
 import { WorkSchema } from "../utils/schemas/work.shemas";
@@ -92,6 +93,13 @@ export const deleteDataWork = async (
 ) => {
   try {
     const { id } = req.params;
+
+    const findData = await getDataWorkByIdService(id);
+
+    if (!findData) {
+      res.status(404).json({ message: "Data Not Found" });
+      return;
+    }
 
     const deleteData = await deleteDataWorkService(id);
 

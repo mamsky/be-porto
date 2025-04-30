@@ -91,3 +91,11 @@ export const deleteDataWorkService = async (id: string) => {
     return deleteDataWork;
   });
 };
+
+export const getDataWorkByIdService = async (id: string) => {
+  return prisma.work.findFirst({
+    where: {
+      id,
+    },
+  });
+};
