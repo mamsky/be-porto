@@ -6,11 +6,30 @@ import {
   updateDataProfileController,
 } from "../controller/profile.controller";
 import { authCheck } from "../middleware/auth.middleware";
+import { uploadImage } from "../middleware/multer.middleware";
+import { cloudinaryStorage } from "../middleware/cloudinary.middleware";
 const router = express.Router();
 
 router.get("/", authCheck, getDataProfileController);
-router.post("/", authCheck, createDataProfileController);
-router.put("/:id", authCheck, updateDataProfileController);
-router.delete("/:id", authCheck, deleteDataProfileController);
+router.post(
+  "/",
+  authCheck,
+  uploadImage.single("images"),
+  cloudinaryStorage,
+  createDataProfileController
+);
+router.put(
+  "/:id",
+  authCheck,
+  uploadImage.single("images"),
+  cloudinaryStorage,
+  updateDataProfileController
+);
+router.delete(
+  "/:id",
+  authCheck,
+  cloudinaryStorage,
+  deleteDataProfileController
+);
 
 export default router;
