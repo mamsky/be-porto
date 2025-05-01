@@ -7,6 +7,9 @@ import {
   updateDataWorkService,
 } from "../service/work.service";
 import { WorkSchema } from "../utils/schemas/work.shemas";
+import { UploadApiResponse, v2 as cloudinary } from "cloudinary";
+import fs from "fs";
+import { array } from "joi";
 
 export const getDataWork = async (
   req: Request,
@@ -33,17 +36,32 @@ export const createDataWork = async (
   next: NextFunction
 ) => {
   try {
-    const body = req.body;
     const id = (req as any).user.id;
+    let uploadResult: UploadApiResponse = {} as UploadApiResponse;
+
+    if (req.file) {
+      uploadResult = await cloudinary.uploader.upload(req.file.path || "");
+      fs.unlinkSync(req.file.path);
+    }
 
     if (!id) {
       res.status(404).json({ message: "Unauthorize!!!" });
       return;
     }
+    const desc = Array.isArray(req.body.description)
+      ? req.body.description
+      : [req.body.description];
+
+    const body = {
+      ...req.body,
+      description: desc,
+      images: uploadResult.secure_url ?? undefined,
+    };
 
     const { error, value } = WorkSchema.validate(body);
 
     if (error) {
+      await cloudinary.uploader.destroy(uploadResult.public_id);
       res.status(400).json({ error: error.details[0].message });
       return;
     }
@@ -62,25 +80,49 @@ export const updateDataWork = async (
   next: NextFunction
 ) => {
   try {
-    const body = req.body;
     const userId = (req as any).user.id;
     const { id } = req.params;
+    let uploadResult: UploadApiResponse = {} as UploadApiResponse;
+
+    const getDataById = await getDataWorkByIdService(id);
+    const url = getDataById?.images;
+    const fileName = url?.substring(url.lastIndexOf("/") + 1).split(".")[0];
 
     if (!userId) {
       res.status(404).json({ message: "Unauthorize!!!" });
       return;
     }
 
+    if (req.file) {
+      uploadResult = await cloudinary.uploader.upload(req.file.path || "");
+      fs.unlinkSync(req.file.path);
+    }
+
+    const desc = Array.isArray(req.body.description)
+      ? req.body.description
+      : [req.body.description];
+
+    const body = {
+      ...req.body,
+      description: desc,
+      images: uploadResult.secure_url ?? undefined,
+    };
+
     const { error, value } = WorkSchema.validate(body);
 
     if (error) {
+      await cloudinary.uploader.destroy(uploadResult.public_id);
       res.status(400).json({ error: error.details[0].message });
       return;
     }
 
-    const data = await updateDataWorkService(value, id);
+    if (value) {
+      await cloudinary.uploader.destroy(fileName || "");
+      const data = await updateDataWorkService(value, id);
 
-    res.status(200).json({ message: "success", data });
+      res.status(200).json({ message: "success", data });
+      return;
+    }
   } catch (error) {
     next(error);
   }
@@ -95,12 +137,15 @@ export const deleteDataWork = async (
     const { id } = req.params;
 
     const findData = await getDataWorkByIdService(id);
+    const url = findData?.images;
+    const fieldName = url?.substring(url.lastIndexOf("/") + 1).split(".")[0];
 
     if (!findData) {
       res.status(404).json({ message: "Data Not Found" });
       return;
     }
 
+    await cloudinary.uploader.destroy(fieldName || "");
     const deleteData = await deleteDataWorkService(id);
 
     res.status(200).json({ message: "success", data: deleteData });
