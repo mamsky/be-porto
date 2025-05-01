@@ -6,5 +6,5 @@ export const createProfileSchemas = Joi.object({
   profession: Joi.string().required(),
   bio: Joi.string().required(),
   location: Joi.string(),
-  status: Joi.string().valid("true", "false"),
+  status: Joi.string().valid(true, false),
 });

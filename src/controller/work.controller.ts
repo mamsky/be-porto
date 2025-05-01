@@ -108,3 +108,19 @@ export const deleteDataWork = async (
     next(error);
   }
 };
+
+export const getDataWorkByIdController = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const { id } = req.params;
+
+    const data = await getDataWorkByIdService(id);
+
+    res.status(200).json({ message: "success", data });
+  } catch (error) {
+    next(error);
+  }
+};
