@@ -2,6 +2,12 @@ import { PrismaClient } from "@prisma/client";
 import { ProfileDTO } from "../utils/types/profile.types";
 const prisma = new PrismaClient();
 
+export const getDataProfileService = () => {
+  return prisma.profile.findFirst({
+    take: 1,
+  });
+};
+
 export const getDataProfileByIdService = (userId: string) => {
   return prisma.profile.findFirst({
     where: {

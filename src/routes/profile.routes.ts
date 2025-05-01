@@ -10,7 +10,7 @@ import { uploadImage } from "../middleware/multer.middleware";
 import { cloudinaryStorage } from "../middleware/cloudinary.middleware";
 const router = express.Router();
 
-router.get("/", authCheck, getDataProfileController);
+router.get("/", getDataProfileController);
 router.post(
   "/",
   authCheck,

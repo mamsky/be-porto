@@ -4,6 +4,7 @@ import {
   deleteDataProfileService,
   getDataProfileByIdService,
   getDataProfileFindByIdService,
+  getDataProfileService,
   updateDataProfileService,
 } from "../service/profile.service";
 import { createProfileSchemas } from "../utils/schemas/profile.schemas";
@@ -16,8 +17,8 @@ export const getDataProfileController = async (
   next: NextFunction
 ) => {
   try {
-    const userId = (req as any).user.id;
-    const data = await getDataProfileByIdService(userId);
+    // const data = await getDataProfileByIdService(userId);
+    const data = await getDataProfileService();
 
     res.status(200).json({ message: "success", data });
   } catch (error) {
