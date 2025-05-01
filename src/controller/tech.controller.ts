@@ -7,6 +7,8 @@ import {
   updateDataTechService,
 } from "../service/tech.service";
 import { TechSchemas } from "../utils/schemas/tech.schemas";
+import { UploadApiResponse, v2 as cloudinary } from "cloudinary";
+import fs from "fs";
 
 export const getAllDataTechnologyController = async (
   req: Request,
@@ -44,13 +46,20 @@ export const createDataTechnologyController = async (
 ) => {
   try {
     const { id } = (req as any).user;
-    const body = req.body;
 
-    console.log(id);
+    let uploadResult: UploadApiResponse = {} as UploadApiResponse;
 
-    const { error, value } = await TechSchemas.validate(body);
+    if (req.file) {
+      uploadResult = await cloudinary.uploader.upload(req.file.path);
+      fs.unlinkSync(req.file.path);
+    }
+
+    const body = { ...req.body, images: uploadResult.secure_url ?? undefined };
+
+    const { error, value } = TechSchemas.validate(body);
 
     if (error) {
+      await cloudinary.uploader.destroy(uploadResult.public_id);
       res.status(400).json({ error: error.details[0].message });
       return;
     }
@@ -70,16 +79,28 @@ export const updateDataTechController = async (
 ) => {
   try {
     const { id } = req.params;
-    const body = req.body;
+    let uploadResult: UploadApiResponse = {} as UploadApiResponse;
+    const getData = await getDataTechWithIdService(id);
+    const url = getData?.images;
+    const fileName = url?.substring(url.lastIndexOf("/") + 1).split(".")[0];
 
-    const { error, value } = await TechSchemas.validate(body);
+    if (req.file) {
+      uploadResult = await cloudinary.uploader.upload(req.file.path);
+      fs.unlinkSync(req.file.path);
+    }
+
+    const body = { ...req.body, images: uploadResult.secure_url ?? url };
+
+    const { error, value } = TechSchemas.validate(body);
 
     if (error) {
+      await cloudinary.uploader.destroy(uploadResult.public_id || "");
       res.status(400).json({ error: error.details[0].message });
       return;
     }
 
     const data = await updateDataTechService(id, value);
+    data ? await cloudinary.uploader.destroy(fileName || "") : "";
 
     res.status(200).json({ message: "success", data });
   } catch (error) {
@@ -94,7 +115,11 @@ export const deleteDataTechController = async (
 ) => {
   try {
     const { id } = req.params;
+    const getData = await getDataTechWithIdService(id);
+    const url = getData?.images;
+    const fileName = url?.substring(url.lastIndexOf("/") + 1).split(".")[0];
 
+    await cloudinary.uploader.destroy(fileName || "");
     const data = await deleteDataTechService(id);
 
     res.status(200).json({ message: "success", data });
