@@ -21,6 +21,9 @@ export const getDataAllUser = async (
 ) => {
   try {
     const data = await getAllUser();
+    if (!data) {
+      res.status(404).json({ message: "Data not found" });
+    }
     res.status(200).json({ message: "success", data });
   } catch (error) {
     next(error);

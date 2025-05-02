@@ -17,6 +17,10 @@ export const getAllDataTechnologyController = async (
 ) => {
   try {
     const data = await getAllDataTechService();
+    if (!data) {
+      res.status(404).json({ message: "Data not available" });
+      return;
+    }
     res.status(200).json({ message: "success", data });
   } catch (error) {
     next(error);
@@ -33,6 +37,11 @@ export const getDataTechByIdController = async (
 
     const data = await getDataTechWithIdService(id);
 
+    if (!data) {
+      res.status(404).json({ message: "Data not available" });
+      return;
+    }
+
     res.status(200).json({ message: "success", data });
   } catch (error) {
     next(error);
@@ -47,19 +56,22 @@ export const createDataTechnologyController = async (
   try {
     const { id } = (req as any).user;
 
-    let uploadResult: UploadApiResponse = {} as UploadApiResponse;
-
-    if (req.file) {
-      uploadResult = await cloudinary.uploader.upload(req.file.path);
-      fs.unlinkSync(req.file.path);
+    if (!req.file) {
+      res.status(400).json({ error: "Image Required" });
+      return;
     }
 
-    const body = { ...req.body, images: uploadResult.secure_url ?? undefined };
+    let uploadResult: UploadApiResponse = {} as UploadApiResponse;
+
+    uploadResult = await cloudinary.uploader.upload(req.file.path);
+    fs.unlinkSync(req.file.path);
+
+    const body = { ...req.body, images: uploadResult.secure_url };
 
     const { error, value } = TechSchemas.validate(body);
 
     if (error) {
-      await cloudinary.uploader.destroy(uploadResult.public_id);
+      await cloudinary.uploader.destroy(uploadResult.public_id || "");
       res.status(400).json({ error: error.details[0].message });
       return;
     }
@@ -79,8 +91,13 @@ export const updateDataTechController = async (
 ) => {
   try {
     const { id } = req.params;
-    let uploadResult: UploadApiResponse = {} as UploadApiResponse;
     const getData = await getDataTechWithIdService(id);
+    if (!getData) {
+      res.status(404).json({ error: "Data not found" });
+      return;
+    }
+
+    let uploadResult: UploadApiResponse = {} as UploadApiResponse;
     const url = getData?.images;
     const fileName = url?.substring(url.lastIndexOf("/") + 1).split(".")[0];
 
@@ -94,13 +111,18 @@ export const updateDataTechController = async (
     const { error, value } = TechSchemas.validate(body);
 
     if (error) {
-      await cloudinary.uploader.destroy(uploadResult.public_id || "");
+      if (req.file) {
+        await cloudinary.uploader.destroy(uploadResult.public_id || "");
+      }
       res.status(400).json({ error: error.details[0].message });
       return;
     }
 
+    if (req.file && url) {
+      await cloudinary.uploader.destroy(fileName || "");
+    }
+
     const data = await updateDataTechService(id, value);
-    data ? await cloudinary.uploader.destroy(fileName || "") : "";
 
     res.status(200).json({ message: "success", data });
   } catch (error) {
@@ -116,10 +138,17 @@ export const deleteDataTechController = async (
   try {
     const { id } = req.params;
     const getData = await getDataTechWithIdService(id);
+    if (!getData) {
+      res.status(404).json({ message: "Data not found" });
+      return;
+    }
     const url = getData?.images;
     const fileName = url?.substring(url.lastIndexOf("/") + 1).split(".")[0];
 
-    await cloudinary.uploader.destroy(fileName || "");
+    if (url) {
+      await cloudinary.uploader.destroy(fileName || "");
+    }
+
     const data = await deleteDataTechService(id);
 
     res.status(200).json({ message: "success", data });

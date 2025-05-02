@@ -17,8 +17,11 @@ export const getDataProfileController = async (
   next: NextFunction
 ) => {
   try {
-    // const data = await getDataProfileByIdService(userId);
     const data = await getDataProfileService();
+    if (!data) {
+      res.status(404).json({ message: "No data available" });
+      return;
+    }
 
     res.status(200).json({ message: "success", data });
   } catch (error) {
@@ -33,21 +36,31 @@ export const createDataProfileController = async (
 ) => {
   try {
     const userId = (req as any).user.id;
-
     let uploadResult: UploadApiResponse = {} as UploadApiResponse;
 
-    if (req.file) {
-      uploadResult = await cloudinary.uploader.upload(req.file.path || "");
-      fs.unlinkSync(req.file.path);
+    if (!req.file) {
+      res.status(400).json({ error: "Image Required" });
+      return;
     }
 
-    const body = { ...req.body, images: uploadResult.secure_url ?? undefined };
+    uploadResult = await cloudinary.uploader.upload(req.file.path || "");
+    fs.unlinkSync(req.file.path);
+
+    const body = { ...req.body, images: uploadResult.secure_url };
 
     const { error, value } = createProfileSchemas.validate(body);
 
+    const existingProfile = await getDataProfileByIdService(userId);
+
     if (error) {
-      await cloudinary.uploader.destroy(uploadResult.public_id);
+      await cloudinary.uploader.destroy(uploadResult.public_id || "");
       res.status(400).json({ error: error.details[0].message });
+      return;
+    }
+
+    if (existingProfile) {
+      await cloudinary.uploader.destroy(uploadResult.public_id || "");
+      res.status(400).json({ error: "you can only make one data" });
       return;
     }
 
@@ -68,14 +81,8 @@ export const updateDataProfileController = async (
     const { id } = req.params;
     let uploadResult: UploadApiResponse = {} as UploadApiResponse;
 
-    const checkData = await getDataProfileFindByIdService(id);
-    if (!checkData) {
-      res.status(404).json({ message: "Data Not found" });
-      return;
-    }
-
-    const getDataById = await getDataProfileFindByIdService(id);
-    const url = getDataById?.images;
+    const existingData = await getDataProfileFindByIdService(id);
+    const url = existingData?.images;
     const fileName = url?.substring(url.lastIndexOf("/") + 1).split(".")[0];
 
     if (req.file) {
@@ -83,17 +90,25 @@ export const updateDataProfileController = async (
       fs.unlinkSync(req.file.path);
     }
 
-    const body = { ...req.body, images: uploadResult.secure_url ?? undefined };
+    const body = { ...req.body, images: uploadResult.secure_url ?? url };
 
     const { error, value } = createProfileSchemas.validate(body);
+    if (!existingData) {
+      await cloudinary.uploader.destroy(uploadResult.public_id || "");
+      res.status(404).json({ message: "Data Not found" });
+      return;
+    }
+
     if (error) {
-      await cloudinary.uploader.destroy(uploadResult.secure_url);
+      await cloudinary.uploader.destroy(uploadResult.public_id);
       res.status(400).json({ error: error.details[0].message });
       return;
     }
 
     if (value) {
-      await cloudinary.uploader.destroy(fileName || "");
+      if (req.file) {
+        await cloudinary.uploader.destroy(fileName || "");
+      }
       const data = await updateDataProfileService(id, value);
       res.status(200).json({ message: "success", data });
       return;
@@ -111,24 +126,21 @@ export const deleteDataProfileController = async (
   try {
     const { id } = req.params;
 
-    const getDataById = await getDataProfileFindByIdService(id);
-    const url = getDataById?.images;
+    const existingData = await getDataProfileFindByIdService(id);
+    const url = existingData?.images;
     const fileName = url?.substring(url.lastIndexOf("/") + 1).split(".")[0];
 
-    const checkData = await getDataProfileFindByIdService(id);
-
-    if (!checkData) {
+    if (!existingData) {
       res.status(404).json({ message: "data not found" });
       return;
     }
 
-    const deleteImage = await cloudinary.uploader.destroy(fileName || "");
-
-    if (deleteImage) {
-      const data = await deleteDataProfileService(id);
-      res.status(200).json({ message: "success", data });
-      return;
+    if (url) {
+      await cloudinary.uploader.destroy(fileName || "");
     }
+
+    const data = await deleteDataProfileService(id);
+    res.status(200).json({ message: "success", data });
   } catch (error) {
     next(error);
   }
