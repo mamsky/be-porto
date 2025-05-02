@@ -1,4 +1,6 @@
+import { UploadApiResponse, v2 as cloudinary } from "cloudinary";
 import { NextFunction, Request, Response } from "express";
+import fs from "fs";
 import {
   createDataWorkService,
   deleteDataWorkService,
@@ -7,9 +9,6 @@ import {
   updateDataWorkService,
 } from "../service/work.service";
 import { WorkSchema } from "../utils/schemas/work.shemas";
-import { UploadApiResponse, v2 as cloudinary } from "cloudinary";
-import fs from "fs";
-import { array } from "joi";
 
 export const getDataWork = async (
   req: Request,
@@ -84,6 +83,7 @@ export const updateDataWork = async (
 ) => {
   try {
     const { id } = req.params;
+
     const getDataById = await getDataWorkByIdService(id);
     if (!getDataById) {
       res.status(404).json({ mesasge: "No data available" });
