@@ -1,7 +1,10 @@
 import dotenv from "dotenv";
 dotenv.config();
 
+const origin = process.env.ORIGIN;
+const originDev = process.env.ORIGIN_DEV;
+
 export const corsConfig = {
-  origin: ["http://localhost:3000", "http://169.254.79.86:3000"],
+  origin: [`${origin}`, `${originDev}`],
   methods: "GET, PUT, POST, DELETE",
 };
