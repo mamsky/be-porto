@@ -2,6 +2,6 @@ import dotenv from "dotenv";
 dotenv.config();
 
 export const corsConfig = {
-  origin: process.env.ORIGIN,
-  methods: "GET, PUT, PATCH, POST, DELETE",
+  origin: ["http://localhost:3000", "http://169.254.79.86:3000"],
+  methods: "GET, PUT, POST, DELETE",
 };

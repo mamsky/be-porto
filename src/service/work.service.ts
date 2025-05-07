@@ -24,12 +24,22 @@ export const getAllDataWork = async () => {
 
 export const createDataWorkService = async (
   userId: string,
-  { title, date, description, techstack, images, location }: WorkDTO
+  {
+    title,
+    company,
+    startDate,
+    endDate,
+    description,
+    techstack,
+    images,
+    location,
+  }: WorkDTO
 ) => {
   return prisma.work.create({
     data: {
       userId,
       title,
+      company,
       description: {
         createMany: {
           data: description.map((desc) => ({ desc })),
@@ -41,7 +51,8 @@ export const createDataWorkService = async (
         },
       },
       location,
-      date,
+      startDate,
+      endDate,
       images,
     },
     include: {
@@ -52,7 +63,16 @@ export const createDataWorkService = async (
 };
 
 export const updateDataWorkService = async (
-  { date, description, images, techstack, location, title }: WorkDTO,
+  {
+    title,
+    company,
+    startDate,
+    endDate,
+    description,
+    techstack,
+    images,
+    location,
+  }: WorkDTO,
   id: string
 ) => {
   return prisma.$transaction(async (tx) => {
@@ -74,6 +94,7 @@ export const updateDataWorkService = async (
       },
       data: {
         title,
+        company,
         description: {
           createMany: {
             data: description.map((desc) => ({ desc })),
@@ -86,7 +107,8 @@ export const updateDataWorkService = async (
         },
         location,
         images,
-        date,
+        startDate,
+        endDate,
       },
       include: {
         description: {

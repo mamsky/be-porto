@@ -74,10 +74,12 @@ model ArrTech {
 model Work {
   id            String @id @default(uuid())
   title         String
+  company       String
   location      String
   description   ArrDesc[]
   technology    ArrTechWork[]
-  date          String
+  startDate     String
+  endDate       String
   images        String
 
   userId        String

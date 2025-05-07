@@ -39,7 +39,7 @@ export const createDataProfileController = async (
     let uploadResult: UploadApiResponse = {} as UploadApiResponse;
 
     if (!req.file) {
-      res.status(400).json({ error: "Image Required" });
+      res.status(400).json({ message: "Image Required" });
       return;
     }
 
@@ -54,13 +54,13 @@ export const createDataProfileController = async (
 
     if (error) {
       await cloudinary.uploader.destroy(uploadResult.public_id || "");
-      res.status(400).json({ error: error.details[0].message });
+      res.status(400).json({ message: error.details[0].message });
       return;
     }
 
     if (existingProfile) {
       await cloudinary.uploader.destroy(uploadResult.public_id || "");
-      res.status(400).json({ error: "you can only make one data" });
+      res.status(400).json({ message: "you can only make one data" });
       return;
     }
 
@@ -101,7 +101,7 @@ export const updateDataProfileController = async (
 
     if (error) {
       await cloudinary.uploader.destroy(uploadResult.public_id);
-      res.status(400).json({ error: error.details[0].message });
+      res.status(400).json({ message: error.details[0].message });
       return;
     }
 

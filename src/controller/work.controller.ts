@@ -18,7 +18,7 @@ export const getDataWork = async (
   try {
     const data = await getAllDataWork();
 
-    if (!data.length) {
+    if (!data) {
       res.status(404).json({ message: "No data available" });
       return;
     }
@@ -43,18 +43,10 @@ export const createDataWork = async (
       fs.unlinkSync(req.file.path);
     }
 
-    const desc = Array.isArray(req.body.description)
-      ? req.body.description
-      : [req.body.description];
-
-    const tech = Array.isArray(req.body.techstack)
-      ? req.body.techstack
-      : [req.body.techstack];
-
     const body = {
       ...req.body,
-      description: desc,
-      techstack: tech,
+      description: JSON.parse(req.body.description),
+      techstack: JSON.parse(req.body.techstack),
       images: uploadResult.secure_url ?? undefined,
     };
 
@@ -64,7 +56,7 @@ export const createDataWork = async (
       if (req.file) {
         await cloudinary.uploader.destroy(uploadResult.public_id || "");
       }
-      res.status(400).json({ error: error.details[0].message });
+      res.status(400).json({ message: error.details[0].message });
       return;
     }
 
@@ -99,19 +91,11 @@ export const updateDataWork = async (
       fs.unlinkSync(req.file.path);
     }
 
-    const desc = Array.isArray(req.body.description)
-      ? req.body.description
-      : [req.body.description];
-
-    const tech = Array.isArray(req.body.techstack)
-      ? req.body.techstack
-      : [req.body.techstack];
-
     const body = {
       ...req.body,
-      description: desc,
-      techstack: tech,
-      images: uploadResult.secure_url ?? url,
+      description: JSON.parse(req.body.description),
+      techstack: JSON.parse(req.body.techstack),
+      images: uploadResult.secure_url ?? undefined,
     };
 
     const { error, value } = WorkSchema.validate(body);
@@ -120,7 +104,7 @@ export const updateDataWork = async (
       if (req.file) {
         await cloudinary.uploader.destroy(uploadResult.public_id);
       }
-      res.status(400).json({ error: error.details[0].message });
+      res.status(400).json({ message: error.details[0].message });
       return;
     }
 

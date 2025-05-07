@@ -18,7 +18,7 @@ export const getAllProjectController = async (
   try {
     const data = await getAllDataProjectService();
 
-    if (!data.length) {
+    if (!data) {
       res.status(404).json({ message: "Data not available" });
       return;
     }
@@ -38,10 +38,6 @@ export const createDataProjectController = async (
     const userId = (req as any).user.id;
     let uploadResult: UploadApiResponse = {} as UploadApiResponse;
 
-    const tech = Array.isArray(req.body.techstack)
-      ? req.body.techstack
-      : [req.body.techstack];
-
     if (!req.file) {
       res.status(400).json({ message: "Image required" });
       return;
@@ -52,7 +48,7 @@ export const createDataProjectController = async (
 
     const body = {
       ...req.body,
-      techstack: tech,
+      techstack: JSON.parse(req.body.techstack),
       images: uploadResult.secure_url,
     };
 
@@ -90,19 +86,14 @@ export const updateDataProjectController = async (
     const url = getDataProject?.images;
     const fieldName = url?.substring(url.lastIndexOf("/") + 1).split(".")[0];
 
-    const tech = Array.isArray(req.body.techstack)
-      ? req.body.techstack
-      : [req.body.techstack];
-
     if (req.file) {
       uploadResult = await cloudinary.uploader.upload(req.file.path);
       fs.unlinkSync(req.file.path);
     }
-
     const body = {
       ...req.body,
-      techstack: tech,
-      images: uploadResult.secure_url ?? url,
+      techstack: JSON.parse(req.body.techstack),
+      images: uploadResult.secure_url,
     };
 
     const { error, value } = ProjectSchemas.validate(body);

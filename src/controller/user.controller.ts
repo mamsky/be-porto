@@ -7,6 +7,7 @@ import {
   getAllUser,
   getUserByEmail,
   getUserByEmailOrUsername,
+  getUserById,
   getUserByUsername,
 } from "../service/user.service";
 import { authSchema, userSchema } from "../utils/schemas/user.schemas";
@@ -81,14 +82,14 @@ export const authDataUser = async (
     const isUser = await getUserByEmailOrUsername(validateBody);
 
     if (!isUser) {
-      res.status(404).json({ message: "Username Or Password Wrong u" });
+      res.status(404).json({ message: "Username Or Password Wrong" });
       return;
     }
 
     const passwordValid = await bcrypt.compare(body.password, isUser.password);
 
     if (!passwordValid) {
-      res.status(404).json({ message: "Username Or Password Wrong p" });
+      res.status(404).json({ message: "Username Or Password Wrong" });
       return;
     }
 
@@ -101,6 +102,28 @@ export const authDataUser = async (
     );
 
     res.status(200).json({ message: "success", token });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const userCheckController = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const userId = (req as any).user.id;
+
+    const checkData = await getUserById(userId);
+
+    if (!checkData) {
+      res.status(404).json({ message: "User not found" });
+      return;
+    }
+
+    const { password: unUsedPassword, ...userData } = checkData;
+    res.status(200).json({ message: "success", data: { ...userData } });
   } catch (error) {
     next(error);
   }

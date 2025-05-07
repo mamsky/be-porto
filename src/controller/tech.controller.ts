@@ -57,7 +57,7 @@ export const createDataTechnologyController = async (
     const { id } = (req as any).user;
 
     if (!req.file) {
-      res.status(400).json({ error: "Image Required" });
+      res.status(400).json({ message: "Image Required" });
       return;
     }
 
@@ -72,7 +72,7 @@ export const createDataTechnologyController = async (
 
     if (error) {
       await cloudinary.uploader.destroy(uploadResult.public_id || "");
-      res.status(400).json({ error: error.details[0].message });
+      res.status(400).json({ message: error.details[0].message });
       return;
     }
 
