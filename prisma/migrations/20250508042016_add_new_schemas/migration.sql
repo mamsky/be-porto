@@ -39,15 +39,6 @@ CREATE TABLE "Project" (
 );
 
 -- CreateTable
-CREATE TABLE "ArrTech" (
-    "id" TEXT NOT NULL,
-    "techstack" TEXT NOT NULL,
-    "techId" TEXT NOT NULL,
-
-    CONSTRAINT "ArrTech_pkey" PRIMARY KEY ("id")
-);
-
--- CreateTable
 CREATE TABLE "Tech" (
     "id" TEXT NOT NULL,
     "name" TEXT NOT NULL,
@@ -58,11 +49,22 @@ CREATE TABLE "Tech" (
 );
 
 -- CreateTable
+CREATE TABLE "ArrTech" (
+    "id" TEXT NOT NULL,
+    "techstack" TEXT NOT NULL,
+    "techId" TEXT NOT NULL,
+
+    CONSTRAINT "ArrTech_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
 CREATE TABLE "Work" (
     "id" TEXT NOT NULL,
     "title" TEXT NOT NULL,
+    "company" TEXT NOT NULL,
     "location" TEXT NOT NULL,
-    "date" TEXT NOT NULL,
+    "startDate" TEXT NOT NULL,
+    "endDate" TEXT NOT NULL,
     "images" TEXT NOT NULL,
     "userId" TEXT NOT NULL,
 
@@ -78,6 +80,15 @@ CREATE TABLE "ArrDesc" (
     CONSTRAINT "ArrDesc_pkey" PRIMARY KEY ("id")
 );
 
+-- CreateTable
+CREATE TABLE "ArrTechWork" (
+    "id" TEXT NOT NULL,
+    "techstack" TEXT NOT NULL,
+    "techId" TEXT NOT NULL,
+
+    CONSTRAINT "ArrTechWork_pkey" PRIMARY KEY ("id")
+);
+
 -- CreateIndex
 CREATE UNIQUE INDEX "User_username_key" ON "User"("username");
 
@@ -91,13 +102,16 @@ ALTER TABLE "Profile" ADD CONSTRAINT "Profile_userId_fkey" FOREIGN KEY ("userId"
 ALTER TABLE "Project" ADD CONSTRAINT "Project_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "ArrTech" ADD CONSTRAINT "ArrTech_techId_fkey" FOREIGN KEY ("techId") REFERENCES "Project"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "Tech" ADD CONSTRAINT "Tech_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "Tech" ADD CONSTRAINT "Tech_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "ArrTech" ADD CONSTRAINT "ArrTech_techId_fkey" FOREIGN KEY ("techId") REFERENCES "Project"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "Work" ADD CONSTRAINT "Work_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "ArrDesc" ADD CONSTRAINT "ArrDesc_descriptionId_fkey" FOREIGN KEY ("descriptionId") REFERENCES "Work"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "ArrTechWork" ADD CONSTRAINT "ArrTechWork_techId_fkey" FOREIGN KEY ("techId") REFERENCES "Work"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
