@@ -1,6 +1,6 @@
-import { Prisma, PrismaClient } from "@prisma/client";
+import { Prisma } from "@prisma/client";
+import { prisma } from "../libs/prisma";
 import { WorkDTO } from "../utils/types/work.types";
-const prisma = new PrismaClient();
 
 export const getAllDataWork = async () => {
   return await prisma.work.findMany({

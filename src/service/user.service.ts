@@ -1,6 +1,5 @@
-import { PrismaClient } from "@prisma/client";
+import { prisma } from "../libs/prisma";
 import { UserDTO } from "../utils/types/user.types";
-const prisma = new PrismaClient();
 
 export const getAllUser = async () => {
   return await prisma.user.findMany();

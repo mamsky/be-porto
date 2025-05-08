@@ -1,6 +1,6 @@
-import { Prisma, PrismaClient } from "@prisma/client";
+import { Prisma } from "@prisma/client";
+import { prisma } from "../libs/prisma";
 import { ProjectDTO } from "../utils/types/project.types";
-const prisma = new PrismaClient();
 
 export const getAllDataProjectService = async () => {
   return await prisma.project.findMany({

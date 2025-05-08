@@ -1,6 +1,5 @@
-import { PrismaClient } from "@prisma/client";
+import { prisma } from "../libs/prisma";
 import { ProfileDTO } from "../utils/types/profile.types";
-const prisma = new PrismaClient();
 
 export const getDataProfileService = () => {
   return prisma.profile.findFirst({

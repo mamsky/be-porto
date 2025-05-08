@@ -1,6 +1,5 @@
-import { PrismaClient } from "@prisma/client";
+import { prisma } from "../libs/prisma";
 import { TechDTO } from "../utils/types/tech.types";
-const prisma = new PrismaClient();
 
 export const getAllDataTechService = () => {
   return prisma.tech.findMany({
