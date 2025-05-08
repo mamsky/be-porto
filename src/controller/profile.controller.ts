@@ -41,9 +41,11 @@ export const createDataProfileController = async (
     if (!req.file) {
       res.status(400).json({ message: "Image Required" });
       return;
+    } else {
+      uploadResult = await cloudinary.uploader.upload(req.file.path || "");
     }
 
-    const body = { ...req.body, images: uploadResult.secure_url };
+    const body = { ...req.body, images: uploadResult.se };
     const { error, value } = createProfileSchemas.validate(body);
 
     const existingProfile = await getDataProfileByIdService(userId);
