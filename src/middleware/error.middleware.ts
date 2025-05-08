@@ -1,4 +1,4 @@
-import { Prisma } from "@prisma/client";
+import { PrismaClientKnownRequestError } from "@prisma/client/runtime/library";
 import { NextFunction, Request, Response } from "express";
 import Joi from "joi";
 
@@ -15,7 +15,7 @@ export function errorHandler(
     return;
   }
 
-  if (err instanceof Prisma.PrismaClientKnownRequestError) {
+  if (err instanceof PrismaClientKnownRequestError) {
     const { message } = err;
     res.status(400).json({
       message: message || "Terjadi kesalahan pada database.",
