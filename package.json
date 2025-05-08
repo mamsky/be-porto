@@ -3,9 +3,8 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
-    "generate": "npx prisma generate",
     "start": "nodemon src/index.ts",
-    "build": "tsc"
+    "build": "npx prisma db push && npx prisma generate && tsc"
   },
   "keywords": [],
   "author": "",
