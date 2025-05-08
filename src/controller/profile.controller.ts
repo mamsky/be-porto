@@ -38,9 +38,7 @@ export const createDataProfileController = async (
     const userId = (req as any).user.id;
     let uploadResult: UploadApiResponse = {} as UploadApiResponse;
 
-    if (req.file) {
-      uploadResult = await cloudinary.uploader.upload(req.file.path || "");
-    } else {
+    if (!req.file) {
       res.status(400).json({ message: "Image Required" });
       return;
     }

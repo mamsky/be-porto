@@ -16,6 +16,7 @@ router.post(
   cloudinaryStorage.single("images"),
   createDataProfileController
 );
+
 router.put(
   "/:id",
   authCheck,
