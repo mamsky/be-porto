@@ -1,3 +1,4 @@
+import { UploadApiResponse } from "cloudinary";
 import { NextFunction, Request, Response } from "express";
 import {
   createDataProfileService,
@@ -8,7 +9,8 @@ import {
   updateDataProfileService,
 } from "../service/profile.service";
 import { createProfileSchemas } from "../utils/schemas/profile.schemas";
-import { v2 as cloudinary, UploadApiResponse } from "cloudinary";
+import { v2 as cloudinary } from "cloudinary";
+
 export const getDataProfileController = async (
   req: Request,
   res: Response,

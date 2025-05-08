@@ -8,7 +8,6 @@ import {
 } from "../controller/project.controller";
 import { authCheck } from "../middleware/auth.middleware";
 import cloudinaryUpload from "../middleware/cloudinary.middleware";
-import { cloudinaryCheck } from "../middleware/cloudinary.check";
 const router = express.Router();
 
 router.get("/", getAllProjectController);
@@ -25,6 +24,6 @@ router.put(
   cloudinaryUpload.single("images"),
   updateDataProjectController
 );
-router.delete("/:id", authCheck, cloudinaryCheck, deleteDataProjectController);
+router.delete("/:id", authCheck, deleteDataProjectController);
 
 export default router;

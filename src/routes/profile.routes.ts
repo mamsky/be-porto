@@ -7,7 +7,6 @@ import {
 } from "../controller/profile.controller";
 import { authCheck } from "../middleware/auth.middleware";
 import cloudinaryStorage from "../middleware/cloudinary.middleware";
-import { cloudinaryCheck } from "../middleware/cloudinary.check";
 const router = express.Router();
 
 router.get("/", getDataProfileController);
@@ -24,6 +23,6 @@ router.put(
   updateDataProfileController
 );
 
-router.delete("/:id", authCheck, cloudinaryCheck, deleteDataProfileController);
+router.delete("/:id", authCheck, deleteDataProfileController);
 
 export default router;
