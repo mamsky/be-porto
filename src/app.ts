@@ -1,5 +1,5 @@
 import express, { Request, Response } from "express";
-import { ErrorHandler } from "./middleware/error.middleware";
+import { errorHandler } from "./middleware/error.middleware";
 import groupRoutes from "./routes/group.routes";
 import { corsConfig } from "./config/cors.config";
 import cors from "cors";
@@ -14,6 +14,6 @@ app.get("/", (req: Request, res: Response) => {
 });
 
 app.use("/", groupRoutes);
-app.use(ErrorHandler);
+app.use(errorHandler);
 
 export default app;
