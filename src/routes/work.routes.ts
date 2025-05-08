@@ -8,7 +8,6 @@ import {
 } from "../controller/work.controller";
 import { authCheck } from "../middleware/auth.middleware";
 import cloudinaryUpload from "../middleware/cloudinary.middleware";
-import { cloudinaryCheck } from "../middleware/cloudinary.check";
 const router = express.Router();
 
 router.get("/", getDataWork);
@@ -20,6 +19,6 @@ router.put(
   cloudinaryUpload.single("images"),
   updateDataWork
 );
-router.delete("/:id", authCheck, cloudinaryCheck, deleteDataWork);
+router.delete("/:id", authCheck, deleteDataWork);
 
 export default router;
