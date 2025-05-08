@@ -1,4 +1,4 @@
-import { PrismaClient } from "@prisma/client";
+import { Prisma, PrismaClient } from "@prisma/client";
 import { ProjectDTO } from "../utils/types/project.types";
 const prisma = new PrismaClient();
 
@@ -49,7 +49,7 @@ export const updateDataProjectService = async (
   data: ProjectDTO
 ) => {
   const { techstack: stack, ...fieldData } = data;
-  return await prisma.$transaction(async (pst) => {
+  return await prisma.$transaction(async (pst: Prisma.TransactionClient) => {
     await pst.arrTech.deleteMany({
       where: {
         techId: id,
@@ -78,7 +78,7 @@ export const updateDataProjectService = async (
 };
 
 export const deleteDataProjectService = async (id: string) => {
-  return prisma.$transaction(async (alf) => {
+  return prisma.$transaction(async (alf: Prisma.TransactionClient) => {
     await alf.arrTech.deleteMany({
       where: {
         techId: id,

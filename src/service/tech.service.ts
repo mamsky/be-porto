@@ -1,4 +1,4 @@
-import { PrismaClient, Tech } from "@prisma/client";
+import { PrismaClient } from "@prisma/client";
 import { TechDTO } from "../utils/types/tech.types";
 const prisma = new PrismaClient();
 

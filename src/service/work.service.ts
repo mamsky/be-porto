@@ -1,4 +1,4 @@
-import { PrismaClient } from "@prisma/client";
+import { Prisma, PrismaClient } from "@prisma/client";
 import { WorkDTO } from "../utils/types/work.types";
 const prisma = new PrismaClient();
 
@@ -75,7 +75,7 @@ export const updateDataWorkService = async (
   }: WorkDTO,
   id: string
 ) => {
-  return prisma.$transaction(async (tx) => {
+  return prisma.$transaction(async (tx: Prisma.TransactionClient) => {
     await tx.arrDesc.deleteMany({
       where: {
         descriptionId: id,
@@ -129,7 +129,7 @@ export const updateDataWorkService = async (
 };
 
 export const deleteDataWorkService = async (id: string) => {
-  return prisma.$transaction(async (tx) => {
+  return prisma.$transaction(async (tx: Prisma.TransactionClient) => {
     await tx.arrDesc.deleteMany({
       where: {
         descriptionId: id,
