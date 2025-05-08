@@ -1,6 +1,5 @@
 import { UploadApiResponse, v2 as cloudinary } from "cloudinary";
 import { NextFunction, Request, Response } from "express";
-import fs from "fs";
 import {
   createDataWorkService,
   deleteDataWorkService,
@@ -40,7 +39,6 @@ export const createDataWork = async (
 
     if (req.file) {
       uploadResult = await cloudinary.uploader.upload(req.file.path || "");
-      fs.unlinkSync(req.file.path);
     }
 
     const body = {
@@ -88,7 +86,6 @@ export const updateDataWork = async (
 
     if (req.file) {
       uploadResult = await cloudinary.uploader.upload(req.file.path || "");
-      fs.unlinkSync(req.file.path);
     }
 
     const body = {

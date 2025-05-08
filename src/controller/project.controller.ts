@@ -8,7 +8,6 @@ import {
 } from "../service/project.service";
 import { ProjectSchemas } from "../utils/schemas/project.schemas";
 import { UploadApiResponse, v2 as cloudinary } from "cloudinary";
-import fs from "fs";
 
 export const getAllProjectController = async (
   req: Request,
@@ -44,7 +43,6 @@ export const createDataProjectController = async (
     }
 
     uploadResult = await cloudinary.uploader.upload(req.file.path || "");
-    fs.unlinkSync(req.file.path);
 
     const body = {
       ...req.body,
@@ -88,7 +86,6 @@ export const updateDataProjectController = async (
 
     if (req.file) {
       uploadResult = await cloudinary.uploader.upload(req.file.path);
-      fs.unlinkSync(req.file.path);
     }
     const body = {
       ...req.body,

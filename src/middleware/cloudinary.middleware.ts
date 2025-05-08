@@ -1,22 +1,13 @@
-import { v2 as cloudinary } from "cloudinary";
-import dotenv from "dotenv";
-import { NextFunction, Request, Response } from "express";
-dotenv.config();
+import multer from "multer";
+import { CloudinaryStorage } from "multer-storage-cloudinary";
+import cloudinary from "../config/cloudinary.config";
 
-export const cloudinaryStorage = async (
-  req: Request,
-  res: Response,
-  next: NextFunction
-) => {
-  const cloud_name = process.env.CLOUD_NAME;
-  const api_secret = process.env.API_SECRET;
-  const api_key = process.env.API_KEY;
+const storage = new CloudinaryStorage({
+  cloudinary: cloudinary,
+  params: {
+    allowed_formats: ["jpg", "jpeg", "png", "gif"],
+  } as unknown as { allowed_formats: string[] },
+});
+const cloudinaryUpload = multer({ storage });
 
-  cloudinary.config({
-    cloud_name,
-    api_key,
-    api_secret,
-  });
-
-  next();
-};
+export default cloudinaryUpload;

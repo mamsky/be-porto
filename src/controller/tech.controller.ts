@@ -8,7 +8,6 @@ import {
 } from "../service/tech.service";
 import { TechSchemas } from "../utils/schemas/tech.schemas";
 import { UploadApiResponse, v2 as cloudinary } from "cloudinary";
-import fs from "fs";
 
 export const getAllDataTechnologyController = async (
   req: Request,
@@ -64,7 +63,6 @@ export const createDataTechnologyController = async (
     let uploadResult: UploadApiResponse = {} as UploadApiResponse;
 
     uploadResult = await cloudinary.uploader.upload(req.file.path);
-    fs.unlinkSync(req.file.path);
 
     const body = { ...req.body, images: uploadResult.secure_url };
 
@@ -103,7 +101,6 @@ export const updateDataTechController = async (
 
     if (req.file) {
       uploadResult = await cloudinary.uploader.upload(req.file.path);
-      fs.unlinkSync(req.file.path);
     }
 
     const body = { ...req.body, images: uploadResult.secure_url ?? url };

@@ -7,26 +7,19 @@ import {
   updateDataWork,
 } from "../controller/work.controller";
 import { authCheck } from "../middleware/auth.middleware";
-import { uploadImage } from "../middleware/multer.middleware";
-import { cloudinaryStorage } from "../middleware/cloudinary.middleware";
+import cloudinaryUpload from "../middleware/cloudinary.middleware";
+import { cloudinaryCheck } from "../middleware/cloudinary.check";
 const router = express.Router();
 
 router.get("/", getDataWork);
 router.get("/:id", authCheck, getDataWorkByIdController);
-router.post(
-  "/",
-  authCheck,
-  uploadImage.single("images"),
-  cloudinaryStorage,
-  createDataWork
-);
+router.post("/", authCheck, cloudinaryUpload.single("images"), createDataWork);
 router.put(
   "/:id",
   authCheck,
-  uploadImage.single("images"),
-  cloudinaryStorage,
+  cloudinaryUpload.single("images"),
   updateDataWork
 );
-router.delete("/:id", authCheck, cloudinaryStorage, deleteDataWork);
+router.delete("/:id", authCheck, cloudinaryCheck, deleteDataWork);
 
 export default router;

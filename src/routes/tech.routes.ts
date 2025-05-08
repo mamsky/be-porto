@@ -7,8 +7,8 @@ import {
   updateDataTechController,
 } from "../controller/tech.controller";
 import { authCheck } from "../middleware/auth.middleware";
-import { uploadImage } from "../middleware/multer.middleware";
-import { cloudinaryStorage } from "../middleware/cloudinary.middleware";
+import cloudinaryUpload from "../middleware/cloudinary.middleware";
+import { cloudinaryCheck } from "../middleware/cloudinary.check";
 const router = express.Router();
 
 router.get("/", getAllDataTechnologyController);
@@ -16,17 +16,15 @@ router.get("/:id", authCheck, getDataTechByIdController);
 router.post(
   "/",
   authCheck,
-  uploadImage.single("images"),
-  cloudinaryStorage,
+  cloudinaryUpload.single("images"),
   createDataTechnologyController
 );
 router.put(
   "/:id",
   authCheck,
-  uploadImage.single("images"),
-  cloudinaryStorage,
+  cloudinaryUpload.single("images"),
   updateDataTechController
 );
-router.delete("/:id", authCheck, cloudinaryStorage, deleteDataTechController);
+router.delete("/:id", authCheck, cloudinaryCheck, deleteDataTechController);
 
 export default router;

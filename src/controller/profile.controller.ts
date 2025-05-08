@@ -9,8 +9,6 @@ import {
 } from "../service/profile.service";
 import { createProfileSchemas } from "../utils/schemas/profile.schemas";
 import { v2 as cloudinary, UploadApiResponse } from "cloudinary";
-import fs from "fs";
-
 export const getDataProfileController = async (
   req: Request,
   res: Response,
@@ -38,16 +36,14 @@ export const createDataProfileController = async (
     const userId = (req as any).user.id;
     let uploadResult: UploadApiResponse = {} as UploadApiResponse;
 
-    if (!req.file) {
+    if (req.file) {
+      uploadResult = await cloudinary.uploader.upload(req.file.path || "");
+    } else {
       res.status(400).json({ message: "Image Required" });
       return;
     }
 
-    uploadResult = await cloudinary.uploader.upload(req.file.path || "");
-    fs.unlinkSync(req.file.path);
-
     const body = { ...req.body, images: uploadResult.secure_url };
-
     const { error, value } = createProfileSchemas.validate(body);
 
     const existingProfile = await getDataProfileByIdService(userId);
@@ -87,7 +83,6 @@ export const updateDataProfileController = async (
 
     if (req.file) {
       uploadResult = await cloudinary.uploader.upload(req.file.path || "");
-      fs.unlinkSync(req.file.path);
     }
 
     const body = { ...req.body, images: uploadResult.secure_url ?? url };

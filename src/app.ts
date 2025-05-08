@@ -1,8 +1,8 @@
+import cors from "cors";
 import express, { Request, Response } from "express";
+import { corsConfig } from "./config/cors.config";
 import { errorHandler } from "./middleware/error.middleware";
 import groupRoutes from "./routes/group.routes";
-import { corsConfig } from "./config/cors.config";
-import cors from "cors";
 
 const app = express();
 

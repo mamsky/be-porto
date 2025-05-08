@@ -7,8 +7,8 @@ import {
   updateDataProjectController,
 } from "../controller/project.controller";
 import { authCheck } from "../middleware/auth.middleware";
-import { uploadImage } from "../middleware/multer.middleware";
-import { cloudinaryStorage } from "../middleware/cloudinary.middleware";
+import cloudinaryUpload from "../middleware/cloudinary.middleware";
+import { cloudinaryCheck } from "../middleware/cloudinary.check";
 const router = express.Router();
 
 router.get("/", getAllProjectController);
@@ -16,22 +16,15 @@ router.get("/:id", authCheck, getDataProjectByIdController);
 router.post(
   "/",
   authCheck,
-  uploadImage.single("images"),
-  cloudinaryStorage,
+  cloudinaryUpload.single("images"),
   createDataProjectController
 );
 router.put(
   "/:id",
   authCheck,
-  uploadImage.single("images"),
-  cloudinaryStorage,
+  cloudinaryUpload.single("images"),
   updateDataProjectController
 );
-router.delete(
-  "/:id",
-  authCheck,
-  cloudinaryStorage,
-  deleteDataProjectController
-);
+router.delete("/:id", authCheck, cloudinaryCheck, deleteDataProjectController);
 
 export default router;
