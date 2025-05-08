@@ -9,7 +9,7 @@ import { authCheck } from "../middleware/auth.middleware";
 const router = express.Router();
 
 router.get("/", authCheck, getDataAllUser);
-router.post("/", authCheck, createDataUser);
+router.post("/", createDataUser);
 router.get("/check", authCheck, userCheckController);
 router.post("/auth", authDataUser);
 
