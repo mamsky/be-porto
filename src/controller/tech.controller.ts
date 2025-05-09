@@ -1,3 +1,5 @@
+import { v2 as cloudinary } from "cloudinary";
+import { extractPublicId } from "cloudinary-build-url";
 import { NextFunction, Request, Response } from "express";
 import {
   createDataTechService,
@@ -7,7 +9,6 @@ import {
   updateDataTechService,
 } from "../service/tech.service";
 import { TechSchemas } from "../utils/schemas/tech.schemas";
-import { UploadApiResponse, v2 as cloudinary } from "cloudinary";
 
 export const getAllDataTechnologyController = async (
   req: Request,
@@ -54,22 +55,18 @@ export const createDataTechnologyController = async (
 ) => {
   try {
     const { id } = (req as any).user;
-
+    let uploadResult: string | undefined;
     if (!req.file) {
       res.status(400).json({ message: "Image Required" });
       return;
     }
 
-    let uploadResult: UploadApiResponse = {} as UploadApiResponse;
-
-    uploadResult = await cloudinary.uploader.upload(req.file.path);
-
-    const body = { ...req.body, images: uploadResult.secure_url };
-
+    uploadResult = req.file.path;
+    const body = { ...req.body, images: uploadResult };
     const { error, value } = TechSchemas.validate(body);
 
     if (error) {
-      await cloudinary.uploader.destroy(uploadResult.public_id || "");
+      await cloudinary.uploader.destroy(req.file.filename || "");
       res.status(400).json({ message: error.details[0].message });
       return;
     }
@@ -95,28 +92,28 @@ export const updateDataTechController = async (
       return;
     }
 
-    let uploadResult: UploadApiResponse = {} as UploadApiResponse;
+    let uploadResult: string | undefined;
     const url = getData?.images;
-    const fileName = url?.substring(url.lastIndexOf("/") + 1).split(".")[0];
+    const cloudinaryPublicId = extractPublicId(url);
 
     if (req.file) {
-      uploadResult = await cloudinary.uploader.upload(req.file.path);
+      uploadResult = req.file.path;
     }
 
-    const body = { ...req.body, images: uploadResult.secure_url ?? url };
+    const body = { ...req.body, images: uploadResult ?? url };
 
     const { error, value } = TechSchemas.validate(body);
 
     if (error) {
       if (req.file) {
-        await cloudinary.uploader.destroy(uploadResult.public_id || "");
+        await cloudinary.uploader.destroy(req.file.filename || "");
       }
       res.status(400).json({ error: error.details[0].message });
       return;
     }
 
     if (req.file && url) {
-      await cloudinary.uploader.destroy(fileName || "");
+      await cloudinary.uploader.destroy(cloudinaryPublicId || "");
     }
 
     const data = await updateDataTechService(id, value);
@@ -135,19 +132,17 @@ export const deleteDataTechController = async (
   try {
     const { id } = req.params;
     const getData = await getDataTechWithIdService(id);
+
     if (!getData) {
       res.status(404).json({ message: "Data not found" });
       return;
     }
-    const url = getData?.images;
-    const fileName = url?.substring(url.lastIndexOf("/") + 1).split(".")[0];
 
-    if (url) {
-      await cloudinary.uploader.destroy(fileName || "");
-    }
+    const url = getData?.images;
+    const cloudinaryPublicId = extractPublicId(url);
+    await cloudinary.uploader.destroy(cloudinaryPublicId || "");
 
     const data = await deleteDataTechService(id);
-
     res.status(200).json({ message: "success", data });
   } catch (error) {
     next(error);

@@ -8,6 +8,7 @@ import {
   updateDataWorkService,
 } from "../service/work.service";
 import { WorkSchema } from "../utils/schemas/work.shemas";
+import { extractPublicId } from "cloudinary-build-url";
 
 export const getDataWork = async (
   req: Request,
@@ -18,7 +19,7 @@ export const getDataWork = async (
     const data = await getAllDataWork();
 
     if (!data) {
-      res.status(404).json({ message: "No data available" });
+      res.status(404).json({ message: "No data available", data });
       return;
     }
 
@@ -35,25 +36,23 @@ export const createDataWork = async (
 ) => {
   try {
     const id = (req as any).user.id;
-    let uploadResult: UploadApiResponse = {} as UploadApiResponse;
+    let uploadResult: string | undefined;
 
     if (req.file) {
-      uploadResult = await cloudinary.uploader.upload(req.file.path || "");
+      uploadResult = req.file.path;
     }
 
     const body = {
       ...req.body,
       description: JSON.parse(req.body.description),
       techstack: JSON.parse(req.body.techstack),
-      images: uploadResult.secure_url ?? undefined,
+      images: uploadResult ?? undefined,
     };
 
     const { error, value } = WorkSchema.validate(body);
 
     if (error) {
-      if (req.file) {
-        await cloudinary.uploader.destroy(uploadResult.public_id || "");
-      }
+      await cloudinary.uploader.destroy(req.file?.filename || "");
       res.status(400).json({ message: error.details[0].message });
       return;
     }
@@ -75,39 +74,38 @@ export const updateDataWork = async (
     const { id } = req.params;
 
     const getDataById = await getDataWorkByIdService(id);
+
     if (!getDataById) {
       res.status(404).json({ mesasge: "No data available" });
       return;
     }
 
-    let uploadResult: UploadApiResponse = {} as UploadApiResponse;
+    let uploadResult: string | undefined;
     const url = getDataById?.images;
-    const fileName = url?.substring(url.lastIndexOf("/") + 1).split(".")[0];
+    const cloudinaryPubliId = extractPublicId(url);
 
     if (req.file) {
-      uploadResult = await cloudinary.uploader.upload(req.file.path || "");
+      uploadResult = req.file.path;
     }
 
     const body = {
       ...req.body,
       description: JSON.parse(req.body.description),
       techstack: JSON.parse(req.body.techstack),
-      images: uploadResult.secure_url ?? undefined,
+      images: uploadResult ?? undefined,
     };
 
     const { error, value } = WorkSchema.validate(body);
 
     if (error) {
-      if (req.file) {
-        await cloudinary.uploader.destroy(uploadResult.public_id);
-      }
+      await cloudinary.uploader.destroy(req.file?.filename || "");
       res.status(400).json({ message: error.details[0].message });
       return;
     }
 
     if (value) {
       if (req.file) {
-        await cloudinary.uploader.destroy(fileName || "");
+        await cloudinary.uploader.destroy(cloudinaryPubliId || "");
       }
       const data = await updateDataWorkService(value, id);
 
@@ -134,11 +132,10 @@ export const deleteDataWork = async (
     }
 
     const url = findData?.images;
-    const fieldName = url?.substring(url.lastIndexOf("/") + 1).split(".")[0];
+    const cloudinaryPubliId = extractPublicId(url);
+    await cloudinary.uploader.destroy(cloudinaryPubliId || "");
 
-    await cloudinary.uploader.destroy(fieldName || "");
     const deleteData = await deleteDataWorkService(id);
-
     res.status(200).json({ message: "success", data: deleteData });
   } catch (error) {
     next(error);

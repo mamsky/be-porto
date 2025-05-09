@@ -14,8 +14,9 @@ const storage = new CloudinaryStorage({
   cloudinary: cloudinary,
   params: {
     allowed_formats: ["jpg", "jpeg", "png", "gif"],
-  } as unknown as { allowed_formats: string[] },
+  } as unknown as { allowed_formats: string[] }, // Explicit type assertion
 });
-const cloudinaryUpload = multer({ storage });
 
-export default cloudinaryUpload;
+const cloudinaryStorage = multer({ storage });
+
+export default cloudinaryStorage;

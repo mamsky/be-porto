@@ -8,6 +8,7 @@ import {
 } from "../service/project.service";
 import { ProjectSchemas } from "../utils/schemas/project.schemas";
 import { UploadApiResponse, v2 as cloudinary } from "cloudinary";
+import { extractPublicId } from "cloudinary-build-url";
 
 export const getAllProjectController = async (
   req: Request,
@@ -35,26 +36,23 @@ export const createDataProjectController = async (
 ) => {
   try {
     const userId = (req as any).user.id;
-    let uploadResult: UploadApiResponse = {} as UploadApiResponse;
 
     if (!req.file) {
       res.status(400).json({ message: "Image required" });
       return;
     }
 
-    uploadResult = await cloudinary.uploader.upload(req.file.path || "");
-
     const body = {
       ...req.body,
       techstack: JSON.parse(req.body.techstack),
-      images: uploadResult.secure_url,
+      images: req.file.path,
     };
 
     const { error, value } = ProjectSchemas.validate(body);
 
     if (error) {
-      await cloudinary.uploader.destroy(uploadResult.public_id);
-      res.status(400).json({ error: error.details[0].message });
+      await cloudinary.uploader.destroy(req.file.filename);
+      res.status(400).json({ message: error.details[0].message });
       return;
     }
 
@@ -80,37 +78,39 @@ export const updateDataProjectController = async (
       return;
     }
 
-    let uploadResult: UploadApiResponse = {} as UploadApiResponse;
+    let images: string | undefined;
     const url = getDataProject?.images;
-    const fieldName = url?.substring(url.lastIndexOf("/") + 1).split(".")[0];
+    const cloudinaryIdPublic = extractPublicId(url);
 
     if (req.file) {
-      uploadResult = await cloudinary.uploader.upload(req.file.path);
+      images = req.file.path;
+    } else {
+      images = url;
     }
+
+    console.log(url);
+
     const body = {
       ...req.body,
       demo: req.body.demo || null,
       github: req.body.github || null,
       techstack: JSON.parse(req.body.techstack),
-      images: uploadResult.secure_url,
+      images,
     };
 
     const { error, value } = ProjectSchemas.validate(body);
 
     if (error) {
-      if (req.file) {
-        await cloudinary.uploader.destroy(uploadResult.public_id || "");
-      }
+      await cloudinary.uploader.destroy(req.file?.filename || "");
       res.status(400).json({ message: error.details[0].message });
       return;
     }
 
     if (value) {
       if (req.file) {
-        await cloudinary.uploader.destroy(fieldName || "");
+        await cloudinary.uploader.destroy(cloudinaryIdPublic);
       }
       const data = await updateDataProjectService(id, value);
-
       res.status(200).json({ message: "success", data });
       return;
     }
@@ -128,15 +128,15 @@ export const deleteDataProjectController = async (
     const { id } = req.params;
 
     const getData = await getDataProjectByIdService(id);
-
+    const url = getData?.images;
     if (!getData) {
       res.status(404).json({ message: "Data not found" });
       return;
     }
-    const url = getData?.images;
-    const fieldName = url?.substring(url.lastIndexOf("/") + 1).split(".")[0];
 
-    await cloudinary.uploader.destroy(fieldName);
+    const publiIdCloudinary = extractPublicId(url || "");
+
+    await cloudinary.uploader.destroy(publiIdCloudinary);
     const data = await deleteDataProjectService(id);
     res.status(200).json({ message: "success", data });
   } catch (error) {
