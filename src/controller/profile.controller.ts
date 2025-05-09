@@ -73,7 +73,7 @@ export const updateDataProfileController = async (
 ) => {
   try {
     const { id } = req.params;
-    let uploadResult: UploadApiResponse = {} as UploadApiResponse;
+    let uploadResult: string | undefined;
 
     const existingData = await getDataProfileFindByIdService(id);
     const url = existingData?.images;
@@ -86,9 +86,8 @@ export const updateDataProfileController = async (
     }
 
     if (req.file) {
-      uploadResult = req.file.path as any;
+      uploadResult = req.file.path;
     }
-
     const body = { ...req.body, images: uploadResult ?? url };
 
     const { error, value } = createProfileSchemas.validate(body);

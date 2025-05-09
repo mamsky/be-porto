@@ -39,8 +39,6 @@ export const createDataUser = async (
   try {
     const body = req.body;
 
-    console.log(body);
-
     const validateBody = await userSchema.validateAsync(body);
 
     const isUsername = await getUserByUsername(validateBody.username);

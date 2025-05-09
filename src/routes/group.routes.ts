@@ -10,8 +10,8 @@ import techRoutes from "./tech.routes";
 
 group.use("/users", UserRoutes);
 group.use("/profiles", profileRoutes);
-group.use("/works", workRoutes);
 group.use("/projects", project);
+group.use("/works", workRoutes);
 group.use("/tech", techRoutes);
 group.use("/test", TestRoutes);
 

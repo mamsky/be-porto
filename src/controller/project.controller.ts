@@ -88,8 +88,6 @@ export const updateDataProjectController = async (
       images = url;
     }
 
-    console.log(url);
-
     const body = {
       ...req.body,
       demo: req.body.demo || null,
